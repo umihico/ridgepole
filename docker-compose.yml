@@ -1,26 +1,49 @@
-version: "3.8"
+version: "3.9"
 services:
-  mysql:
-    image: "mysql:5.6"
-    ports:
-      - "13316:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: password
+  rspec:
+    build: .
+    command: bash -c "SPEC=spec/mysql/virtual/add_virtual_column_spec.rb bundle exec rake spec"
+    # command: SPEC=spec/mysql/virtual/change_virtual_column_spec.rb bundle exec rake spec
+    depends_on:
+      # mysql:
+      #   condition: service_healthy
+      mysql57:
+        condition: service_healthy
+      # mysql80:
+      #   condition: service_healthy
+      # postgres:
+      #   condition: service_healthy
+    volumes:
+      - .:/app
+  # mysql:
+  #   image: "mysql:5.6"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: password
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "-u", "root", "-h", "localhost", "ping"]
+  #     timeout: 3s
+  #     retries: 10
   mysql57:
     image: "mysql:5.7"
-    ports:
-      - "13317:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
-  mysql80:
-    image: "mysql:8.0"
-    ports:
-      - "13318:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-  postgres:
-    image: "postgres:14"
-    ports:
-      - "15442:5432"
-    environment:
-      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-u", "root", "-h", "localhost", "ping"]
+      timeout: 3s
+      retries: 10
+  # mysql80:
+  #   image: "mysql:8.0"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: password
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "-u", "root", "-h", "localhost", "ping"]
+  #     timeout: 3s
+  #     retries: 10
+  # postgres:
+  #   image: "postgres:14"
+  #   environment:
+  #     POSTGRES_PASSWORD: password
+  #   healthcheck:
+  #     test: ["CMD", "pg_isready"]
+  #     timeout: 3s
+  #     retries: 10
